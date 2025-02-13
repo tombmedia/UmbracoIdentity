@@ -38,6 +38,11 @@ namespace UmbracoIdentity
         /// <returns></returns>
         string ICookieManager.GetRequestCookie(IOwinContext context, string key)
         {
+            if (IsMediaRequest(context.Request.Uri))
+            {
+                return base.GetRequestCookie(context, key);
+            }
+
             if (_umbracoContextAccessor.UmbracoContext == null || IsClientSideRequest(context.Request.Uri))
             {
                 return null;
@@ -98,7 +103,13 @@ namespace UmbracoIdentity
             return false;
         }
 
-
+        private static bool IsMediaRequest(Uri url)
+        {
+            var mediaLocalPath = url.LocalPath;
+            if (mediaLocalPath.IsNullOrWhiteSpace())
+                return false;
+            return mediaLocalPath.Contains("/media/");
+        }
 
     }
 }
